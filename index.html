@@ -501,9 +501,181 @@
     .chart-grid, .commentary-grid, .insight-row { grid-template-columns: 1fr; }
     .upload-grid { grid-template-columns: 1fr; }
   }
+
+  /* ── PRINT ── */
+  .print-cover { display: none; }
+  .print-section-banner { display: none; }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: white !important; margin: 0; }
+
+    .no-print, .upload-section, .month-bar, .tab-nav { display: none !important; }
+
+    /* Cover page */
+    .print-cover {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      background: var(--navy) !important;
+      padding: 56px 64px;
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+    .print-cover-top { display: flex; align-items: center; gap: 16px; }
+    .print-cover-logo { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: white; }
+    .print-cover-logo span { color: var(--gold-bright); }
+    .print-cover-badge {
+      border: 1px solid rgba(184,150,12,0.5);
+      color: var(--gold-bright);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .print-cover-main { padding: 0 0 20px 0; }
+    .print-cover-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+      margin-bottom: 20px;
+    }
+    .print-cover-title {
+      font-family: var(--font-display);
+      font-size: 72px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.05;
+      margin-bottom: 36px;
+    }
+    .print-cover-period-line { display: flex; align-items: center; gap: 16px; }
+    .print-cover-period-bar { width: 40px; height: 3px; background: var(--gold) !important; flex-shrink: 0; }
+    .print-cover-period { font-size: 16px; color: rgba(255,255,255,0.75); font-weight: 500; letter-spacing: 0.03em; }
+    .print-cover-bottom {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .print-cover-meta { color: rgba(255,255,255,0.55); font-size: 11px; line-height: 2; }
+    .print-cover-meta strong { color: white; }
+    .print-cover-client { text-align: right; color: rgba(255,255,255,0.55); font-size: 11px; }
+    .print-cover-client strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: white;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* Header */
+    .header { padding: 18px 40px; }
+
+    /* Section banners */
+    .print-section-banner {
+      display: block !important;
+      background: var(--navy) !important;
+      color: white;
+      padding: 10px 40px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 3px solid var(--gold);
+      margin: 0 -40px 32px;
+    }
+
+    /* Tab content — show all tabs */
+    .tab-content { display: block !important; padding: 32px 40px; }
+    #content-seo { page-break-before: always; }
+
+    /* KPI cards */
+    .kpi-card { break-inside: avoid; box-shadow: none !important; border: 1px solid var(--gray-200) !important; }
+    .kpi-card::before { background: var(--gold) !important; }
+    .kpi-value { font-size: 26px !important; }
+    .kpi-grid { break-inside: avoid; }
+
+    /* Chart cards */
+    .chart-card { break-inside: avoid; box-shadow: none !important; border: 1px solid var(--gray-200) !important; }
+
+    /* Tables */
+    .table-wrap { break-inside: avoid; }
+    .data-table { font-size: 11px; }
+    .data-table th { background: var(--navy) !important; color: white !important; }
+    .data-table tr:hover td { background: transparent !important; }
+    .data-table thead { display: table-header-group; }
+
+    /* Bar fills */
+    .bar-fill.navy { background: var(--navy) !important; }
+    .bar-fill.navy-mid { background: var(--navy-mid) !important; }
+    .bar-fill.navy-light { background: var(--navy-light) !important; }
+    .bar-fill.gold { background: var(--gold) !important; color: var(--navy) !important; }
+
+    /* Commentary */
+    .commentary-box { break-inside: avoid; }
+    .commentary-item textarea {
+      border: 1px solid var(--gray-200) !important;
+      background: var(--off-white) !important;
+      resize: none;
+      color: var(--gray-800) !important;
+      font-family: var(--font-body) !important;
+      font-size: 11px !important;
+      min-height: 80px;
+      width: 100%;
+      padding: 10px 12px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* Section breaks */
+    .section-divider { break-after: avoid; }
+    .sub-section-title { break-after: avoid; }
+
+    /* Footer */
+    .footer { margin-top: 24px; padding: 16px 40px; border-top: 3px solid var(--gold) !important; }
+
+    /* SEO checklist */
+    #seo-checklist > div { cursor: default !important; break-inside: avoid; }
+
+    @page { size: A4; margin: 0; }
+  }
 </style>
 </head>
 <body>
+
+<!-- PRINT COVER PAGE (hidden on screen, shown in print) -->
+<div class="print-cover">
+  <div class="print-cover-top">
+    <div class="print-cover-logo">Artistry <span>by Rhythm</span></div>
+    <div class="print-cover-badge">Paid Media & SEO</div>
+  </div>
+  <div class="print-cover-main">
+    <div class="print-cover-eyebrow">Monthly Performance Report</div>
+    <div class="print-cover-title">Paid Media<br>&amp; SEO</div>
+    <div class="print-cover-period-line">
+      <div class="print-cover-period-bar"></div>
+      <div class="print-cover-period" id="print-cover-period">Select a reporting period</div>
+    </div>
+  </div>
+  <div class="print-cover-bottom">
+    <div class="print-cover-meta">
+      <div>Prepared by: <strong>Jameel</strong></div>
+      <div>Senior Growth Performance Marketing Manager</div>
+      <div id="print-cover-date"></div>
+    </div>
+    <div class="print-cover-client">
+      <strong>Artistry by Rhythm</strong>
+      <div>Confidential Client Report</div>
+    </div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -539,7 +711,7 @@
   <label style="margin-left:16px">Client</label>
   <input type="text" value="Artistry by Rhythm" readonly style="width:200px">
   <div class="spacer"></div>
-  <button class="btn btn-primary" onclick="window.print()">⬇ Export PDF</button>
+  <button class="btn btn-primary" onclick="exportPDF()">⬇ Export PDF</button>
 </div>
 
 <!-- TABS -->
@@ -554,6 +726,7 @@
 
 <!-- ═══════════════════════════════════════════ PAID MEDIA TAB -->
 <div class="tab-content active" id="content-paid">
+  <div class="print-section-banner">📊 Section 1 — Paid Media Performance</div>
 
   <!-- UPLOAD -->
   <div class="upload-section" id="upload-paid">
@@ -589,7 +762,7 @@
   </div>
 
   <!-- BUDGET ALLOCATION INPUTS -->
-  <div class="chart-card" style="margin-bottom:20px">
+  <div class="chart-card no-print" style="margin-bottom:20px">
     <div class="chart-title">💰 Budget Allocation</div>
     <div class="chart-subtitle">Set monthly budget per platform — total updates automatically</div>
     <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-top:16px; align-items:end">
@@ -703,7 +876,7 @@
   </div>
 
   <!-- META MANUAL ENTRY -->
-  <div class="chart-card" style="margin-top:20px">
+  <div class="chart-card no-print" style="margin-top:20px">
     <div class="chart-title">✏️ Manual Data Entry — Meta Ads</div>
     <div class="chart-subtitle">Fill in manually if not using CSV upload</div>
     <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-top:12px">
@@ -775,7 +948,7 @@
   </div>
 
   <!-- GOOGLE MANUAL ENTRY -->
-  <div class="chart-card" style="margin-top:20px">
+  <div class="chart-card no-print" style="margin-top:20px">
     <div class="chart-title">✏️ Manual Data Entry — Google Ads</div>
     <div class="chart-subtitle">Fill in manually if not using CSV upload</div>
     <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-top:12px">
@@ -821,7 +994,7 @@
   </div>
 
   <!-- ADD ROW FORM -->
-  <div class="chart-card">
+  <div class="chart-card no-print">
     <div class="chart-title">➕ Add Campaign Row Manually</div>
     <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr auto; gap:8px; align-items:end; margin-top:12px">
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">CAMPAIGN NAME</label><input type="text" id="row-name" placeholder="Bridal — Lead Gen" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
@@ -875,6 +1048,7 @@
 
 <!-- ═══════════════════════════════════════════ SEO TAB -->
 <div class="tab-content" id="content-seo">
+  <div class="print-section-banner">🔍 Section 2 — SEO Performance</div>
 
   <!-- UPLOAD -->
   <div class="upload-section">
@@ -954,7 +1128,7 @@
   </div>
 
   <!-- SEO MANUAL ENTRY -->
-  <div class="chart-card" style="margin-top:20px">
+  <div class="chart-card no-print" style="margin-top:20px">
     <div class="chart-title">✏️ Manual Data Entry — SEO (Google Search Console)</div>
     <div class="chart-subtitle">Fill in manually if not using CSV upload</div>
     <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-top:12px">
@@ -996,7 +1170,7 @@
   </div>
 
   <!-- ADD KEYWORD ROW -->
-  <div class="chart-card">
+  <div class="chart-card no-print">
     <div class="chart-title">➕ Add Keyword Row Manually</div>
     <div style="display:grid; grid-template-columns: 3fr 1fr 1fr 1fr auto; gap:8px; align-items:end; margin-top:12px">
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">KEYWORD</label><input type="text" id="kw-query" placeholder="bridal makeup artist toronto" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
@@ -1032,7 +1206,7 @@
   </div>
 
   <!-- ADD PAGE ROW -->
-  <div class="chart-card">
+  <div class="chart-card no-print">
     <div class="chart-title">➕ Add Page Row Manually</div>
     <div style="display:grid; grid-template-columns: 3fr 1fr 1fr 1fr 1fr auto; gap:8px; align-items:end; margin-top:12px">
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">PAGE URL</label><input type="text" id="pg-url" placeholder="/services/bridal-makeup/" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
@@ -1085,6 +1259,15 @@
 </div>
 
 <script>
+// ── PDF EXPORT ──
+function exportPDF() {
+  const period = document.getElementById('month-select').value || 'Monthly Report';
+  const now = new Date().toLocaleDateString('en-CA', {year:'numeric', month:'long', day:'numeric'});
+  document.getElementById('print-cover-period').textContent = period;
+  document.getElementById('print-cover-date').textContent = 'Generated ' + now;
+  window.print();
+}
+
 // ── TAB SWITCHING ──
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
