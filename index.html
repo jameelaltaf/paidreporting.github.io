@@ -807,8 +807,8 @@
           <th>Impressions</th>
           <th>Clicks</th>
           <th>CTR</th>
-          <th>Leads / Conv.</th>
-          <th>CPL / CPA</th>
+          <th>Result</th>
+          <th>Cost / Result</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -834,7 +834,15 @@
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">SPEND $</label><input type="number" id="row-spend" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">IMPRESSIONS</label><input type="number" id="row-impr" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">CLICKS</label><input type="number" id="row-clicks" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
-      <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">LEADS/CONV.</label><input type="number" id="row-leads" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px"></div>
+      <div>
+        <label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">RESULT TYPE</label>
+        <select id="row-result-type" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px;margin-bottom:3px">
+          <option value="Leads/Conv.">Leads/Conv.</option>
+          <option value="Followers">Followers</option>
+          <option value="Likes">Likes</option>
+        </select>
+        <input type="number" id="row-leads" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px">
+      </div>
       <div><label style="font-size:10px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:3px">STATUS</label>
         <select id="row-status" style="width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px">
           <option>Active</option><option>Paused</option><option>Ended</option>
@@ -1363,10 +1371,11 @@ function addCampaignRow() {
   const spend = parseFloat(document.getElementById('row-spend').value) || 0;
   const impr = parseInt(document.getElementById('row-impr').value) || 0;
   const clicks = parseInt(document.getElementById('row-clicks').value) || 0;
-  const leads = parseInt(document.getElementById('row-leads').value) || 0;
+  const resultVal = parseInt(document.getElementById('row-leads').value) || 0;
+  const resultType = document.getElementById('row-result-type').value;
   const status = document.getElementById('row-status').value;
-  const ctr = impr > 0 ? ((clicks/impr)*100).toFixed(2) + '%' : '—';
-  const cpl = leads > 0 ? '$' + (spend/leads).toFixed(2) : '—';
+  const ctr = impr > 0 ? Math.min((clicks/impr)*100, 100).toFixed(2) + '%' : '—';
+  const costPerResult = resultVal > 0 ? '$' + (spend/resultVal).toFixed(2) : '—';
   const statusPill = status === 'Active' ? 'pill-up' : status === 'Paused' ? 'pill-warning' : 'pill-neutral';
   const tbody = document.getElementById('campaign-tbody');
   if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
@@ -1379,8 +1388,8 @@ function addCampaignRow() {
       <td>${fmtNum(impr)}</td>
       <td>${fmtNum(clicks)}</td>
       <td>${ctr}</td>
-      <td>${leads}</td>
-      <td>${cpl}</td>
+      <td>${resultVal} <span style="font-size:10px;color:var(--gray-400)">${resultType}</span></td>
+      <td>${costPerResult}</td>
       <td><span class="pill ${statusPill}">${status}</span></td>
     </tr>
   `);
