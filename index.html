@@ -1112,19 +1112,21 @@ function parseCSV(type, text) {
 
   const col = name => {
     const syns = {
+      campaign:    ['campaign name','campaign'],
       impressions: ['impressions','impr.','impr'],
-      clicks: ['clicks','link clicks'],
-      spend: ['amount spent','spend','cost','amount spent (cad)','cost (cad)'],
-      ctr: ['ctr','click-through rate'],
-      cpc: ['cpc','cost per click','avg. cpc'],
-      leads: ['leads','results','conversions','conv.'],
-      position: ['position','avg. position','average position'],
-      query: ['query','keyword','search query','top queries'],
-      page: ['page','landing page','url']
+      clicks:      ['link clicks','clicks'],
+      spend:       ['amount spent (cad)','amount spent','cost (cad)','cost','spend'],
+      ctr:         ['ctr (link click-through rate)','ctr','click-through rate'],
+      cpc:         ['cpc (cost per link click)','cpc','cost per click','avg. cpc'],
+      leads:       ['results','leads','conversions','conv.'],
+      objective:   ['objective','ad set objective'],
+      position:    ['position','avg. position','average position'],
+      query:       ['query','keyword','search query','top queries'],
+      page:        ['page','landing page','url']
     };
     const s = syns[name] || [name];
     for (const syn of s) {
-      const i = headers.findIndex(h => h.includes(syn));
+      const i = headers.findIndex(h => h === syn || h.startsWith(syn));
       if (i >= 0) return i;
     }
     return -1;
@@ -1132,33 +1134,65 @@ function parseCSV(type, text) {
 
   const num = (r, c) => { const v = c >= 0 ? parseFloat((r[c]||'0').replace(/[,$%]/g,'')) : 0; return isNaN(v) ? 0 : v; };
   const sum = (c) => rows.slice(1).reduce((s,r) => s + num(r,c), 0);
+  const safeCTR = (clicks, impr) => impr > 0 ? Math.min((clicks/impr)*100, 100).toFixed(2) + '%' : '—';
+
+  const populateCampaignTable = (dataRows, platform) => {
+    const tbody = document.getElementById('campaign-tbody');
+    if (!dataRows.length) return;
+    if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
+    dataRows.forEach(r => {
+      const name = r[col('campaign')] || r[0] || 'Unknown';
+      if (!name || name === 'Unknown' && !r.some(c => c)) return;
+      const rSpend  = num(r, col('spend'));
+      const rImpr   = Math.round(num(r, col('impressions')));
+      const rClicks = Math.round(num(r, col('clicks')));
+      const rLeads  = Math.round(num(r, col('leads')));
+      const rObj    = col('objective') >= 0 ? r[col('objective')] : '—';
+      const rCpl    = rLeads > 0 ? '$' + (rSpend/rLeads).toFixed(2) : '—';
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td><strong>${name}</strong></td>
+          <td>${platform}</td>
+          <td>${rObj}</td>
+          <td>$${rSpend.toFixed(0)}</td>
+          <td>${fmtNum(rImpr)}</td>
+          <td>${fmtNum(rClicks)}</td>
+          <td>${safeCTR(rClicks, rImpr)}</td>
+          <td>${rLeads}</td>
+          <td>${rCpl}</td>
+          <td><span class="pill pill-up">Active</span></td>
+        </tr>`);
+    });
+  };
 
   if (type === 'meta') {
     const spend = sum(col('spend'));
-    const clicks = sum(col('clicks'));
-    const impr = sum(col('impressions'));
-    const leads = sum(col('leads'));
+    const clicks = Math.round(sum(col('clicks')));
+    const impr   = Math.round(sum(col('impressions')));
+    const leads  = Math.round(sum(col('leads')));
     setVal('meta-spend', '$' + spend.toFixed(0));
     setVal('meta-clicks', fmtNum(clicks));
     setVal('meta-impressions', fmtNum(impr));
     setVal('meta-leads', fmtNum(leads));
-    if (impr > 0) setVal('meta-ctr', ((clicks/impr)*100).toFixed(2) + '%');
+    setVal('meta-ctr', safeCTR(clicks, impr));
     if (clicks > 0) setVal('meta-cpc', '$' + (spend/clicks).toFixed(2));
-    if (leads > 0) setVal('meta-cpl', '$' + (spend/leads).toFixed(2));
+    if (leads  > 0) setVal('meta-cpl', '$' + (spend/leads).toFixed(2));
     updateTotalSpend();
+    populateCampaignTable(rows.slice(1).filter(r => r.some(c => c.trim())), 'Meta');
   } else if (type === 'google') {
     const spend = sum(col('spend'));
-    const clicks = sum(col('clicks'));
-    const impr = sum(col('impressions'));
-    const conv = sum(col('leads'));
+    const clicks = Math.round(sum(col('clicks')));
+    const impr   = Math.round(sum(col('impressions')));
+    const conv   = Math.round(sum(col('leads')));
     setVal('google-spend', '$' + spend.toFixed(0));
     setVal('google-clicks', fmtNum(clicks));
     setVal('google-impressions', fmtNum(impr));
     setVal('google-conv', fmtNum(conv));
-    if (impr > 0) setVal('google-ctr', ((clicks/impr)*100).toFixed(2) + '%');
+    setVal('google-ctr', safeCTR(clicks, impr));
     if (clicks > 0) setVal('google-cpc', '$' + (spend/clicks).toFixed(2));
-    if (conv > 0) setVal('google-cpa', '$' + (spend/conv).toFixed(2));
+    if (conv   > 0) setVal('google-cpa', '$' + (spend/conv).toFixed(2));
     updateTotalSpend();
+    populateCampaignTable(rows.slice(1).filter(r => r.some(c => c.trim())), 'Google');
   } else if (type === 'gsc') {
     const impr = sum(col('impressions'));
     const clicks = sum(col('clicks'));
