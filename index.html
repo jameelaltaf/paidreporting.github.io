@@ -588,10 +588,30 @@
     <div class="section-sub">CAD · Monthly</div>
   </div>
 
+  <!-- BUDGET ALLOCATION INPUTS -->
+  <div class="chart-card" style="margin-bottom:20px">
+    <div class="chart-title">💰 Budget Allocation</div>
+    <div class="chart-subtitle">Set monthly budget per platform — total updates automatically</div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-top:16px; align-items:end">
+      <div>
+        <label style="font-size:11px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:6px">META ADS BUDGET (CAD $)</label>
+        <input type="number" id="budget-meta" value="800" min="0" oninput="updateBudget()" style="width:100%;padding:8px 12px;border:1px solid var(--gray-200);border-radius:6px;font-family:var(--font-body);font-size:14px;color:var(--navy);font-weight:600">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:6px">GOOGLE ADS BUDGET (CAD $)</label>
+        <input type="number" id="budget-google" value="1700" min="0" oninput="updateBudget()" style="width:100%;padding:8px 12px;border:1px solid var(--gray-200);border-radius:6px;font-family:var(--font-body);font-size:14px;color:var(--navy);font-weight:600">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--gray-600);font-weight:600;display:block;margin-bottom:6px">TOTAL BUDGET (CAD $)</label>
+        <div style="padding:8px 12px;border:1px solid var(--gold);border-radius:6px;font-size:14px;font-weight:700;color:var(--navy);background:var(--gold-subtle)" id="budget-total-display">$2,500</div>
+      </div>
+    </div>
+  </div>
+
   <div class="kpi-grid kpi-grid-3" style="margin-bottom:20px">
     <div class="kpi-card">
       <div class="kpi-label">Total Budget</div>
-      <div class="kpi-value" id="kpi-total-budget">$2,000</div>
+      <div class="kpi-value" id="kpi-total-budget">$2,500</div>
       <div class="kpi-note">Meta + Google combined</div>
     </div>
     <div class="kpi-card">
@@ -601,14 +621,14 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Remaining Budget</div>
-      <div class="kpi-value" id="kpi-remaining">$2,000</div>
+      <div class="kpi-value" id="kpi-remaining">$2,500</div>
       <div class="kpi-note">Unspent this month</div>
     </div>
   </div>
 
   <div class="chart-card">
     <div class="chart-title">Budget Allocation vs. Spend</div>
-    <div class="chart-subtitle">Meta Ads ($800 CAD budget) · Google Ads ($1,200 CAD budget)</div>
+    <div class="chart-subtitle" id="budget-allocation-subtitle">Meta Ads ($800 CAD budget) · Google Ads ($1,700 CAD budget)</div>
     <div class="bar-chart">
       <div class="bar-row">
         <div class="bar-label">Meta — Bridal</div>
@@ -673,7 +693,7 @@
     <div class="kpi-card">
       <div class="kpi-label">Meta Spend</div>
       <div class="kpi-value" id="meta-spend">—</div>
-      <div class="kpi-delta delta-neutral">Budget: $800 CAD</div>
+      <div class="kpi-delta delta-neutral" id="meta-budget-note">Budget: $800 CAD</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">ROAS</div>
@@ -735,7 +755,7 @@
     <div class="kpi-card">
       <div class="kpi-label">Google Spend</div>
       <div class="kpi-value" id="google-spend">—</div>
-      <div class="kpi-delta delta-neutral">Budget: $1,200 CAD</div>
+      <div class="kpi-delta delta-neutral" id="google-budget-note">Budget: $1,700 CAD</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Cost / Conv.</div>
@@ -1178,16 +1198,19 @@ function getInput(field) {
 }
 
 function updateMetaKPIs() {
-  const impr = getInput('meta-impressions');
-  const clicks = getInput('meta-clicks');
-  const leads = getInput('meta-leads');
+  const impr = Math.round(getInput('meta-impressions'));
+  const clicks = Math.round(getInput('meta-clicks'));
+  const leads = Math.round(getInput('meta-leads'));
   const spend = getInput('meta-spend');
   const revenue = getInput('meta-revenue');
   if (impr) setVal('meta-impressions', fmtNum(impr));
   if (clicks) setVal('meta-clicks', fmtNum(clicks));
   if (leads) setVal('meta-leads', fmtNum(leads));
   if (spend) setVal('meta-spend', '$' + spend.toFixed(0));
-  if (impr && clicks) setVal('meta-ctr', ((clicks/impr)*100).toFixed(2) + '%');
+  if (impr && clicks) {
+    const ctr = Math.min((clicks / impr) * 100, 100);
+    setVal('meta-ctr', ctr.toFixed(2) + '%');
+  }
   if (clicks && spend) setVal('meta-cpc', '$' + (spend/clicks).toFixed(2));
   if (leads && spend) setVal('meta-cpl', '$' + (spend/leads).toFixed(2));
   if (spend && revenue) setVal('meta-roas', (revenue/spend).toFixed(2) + 'x');
@@ -1195,9 +1218,9 @@ function updateMetaKPIs() {
 }
 
 function updateGoogleKPIs() {
-  const impr = getInput('google-impressions');
-  const clicks = getInput('google-clicks');
-  const conv = getInput('google-conv');
+  const impr = Math.round(getInput('google-impressions'));
+  const clicks = Math.round(getInput('google-clicks'));
+  const conv = Math.round(getInput('google-conv'));
   const spend = getInput('google-spend');
   const qs = getInput('google-qs');
   const is = getInput('google-is');
@@ -1205,7 +1228,10 @@ function updateGoogleKPIs() {
   if (clicks) setVal('google-clicks', fmtNum(clicks));
   if (conv) setVal('google-conv', fmtNum(conv));
   if (spend) setVal('google-spend', '$' + spend.toFixed(0));
-  if (impr && clicks) setVal('google-ctr', ((clicks/impr)*100).toFixed(2) + '%');
+  if (impr && clicks) {
+    const ctr = Math.min((clicks / impr) * 100, 100);
+    setVal('google-ctr', ctr.toFixed(2) + '%');
+  }
   if (clicks && spend) setVal('google-cpc', '$' + (spend/clicks).toFixed(2));
   if (conv && spend) setVal('google-cpa', '$' + (spend/conv).toFixed(2));
   if (qs) setVal('google-qs', qs + '/10');
@@ -1243,25 +1269,45 @@ function updateSEOKPIs() {
   }
 }
 
+function getBudgets() {
+  const meta = parseFloat(document.getElementById('budget-meta')?.value) || 800;
+  const google = parseFloat(document.getElementById('budget-google')?.value) || 1700;
+  return { meta, google, total: meta + google };
+}
+
+function updateBudget() {
+  const { meta, google, total } = getBudgets();
+  const fmt = n => '$' + n.toLocaleString('en-CA');
+  setVal('kpi-total-budget', fmt(total));
+  setVal('kpi-remaining', fmt(total - (parseFloat(document.getElementById('kpi-total-spend').textContent.replace(/[^0-9.]/g,'')) || 0)));
+  setVal('budget-total-display', fmt(total));
+  setVal('budget-allocation-subtitle', `Meta Ads (${fmt(meta)} CAD budget) · Google Ads (${fmt(google)} CAD budget)`);
+  setVal('meta-budget-note', `Budget: ${fmt(meta)} CAD`);
+  setVal('google-budget-note', `Budget: ${fmt(google)} CAD`);
+  updateSpendBars();
+  updateTotalSpend();
+}
+
 function updateTotalSpend() {
   const ms = getInput('meta-spend') || parseFloat((document.getElementById('meta-spend').textContent||'0').replace(/[^0-9.]/g,'')) || 0;
   const gs = getInput('google-spend') || parseFloat((document.getElementById('google-spend').textContent||'0').replace(/[^0-9.]/g,'')) || 0;
   const total = ms + gs;
-  const budget = 2000;
+  const { total: budget } = getBudgets();
   setVal('kpi-total-spend', '$' + total.toFixed(0));
   setVal('kpi-remaining', '$' + (budget - total).toFixed(0));
-  const pct = ((total / budget) * 100).toFixed(0);
+  const pct = budget > 0 ? ((total / budget) * 100).toFixed(0) : 0;
   const el = document.getElementById('kpi-spend-pct');
-  if (el) el.textContent = pct + '% of $2,000 budget used';
+  if (el) el.textContent = pct + '% of $' + budget.toLocaleString('en-CA') + ' budget used';
 }
 
 function updateSpendBars() {
+  const { meta: metaBudget, google: googleBudget } = getBudgets();
   const fields = {
-    'meta-bridal-spend': { bar: 'bar-meta-bridal', max: 800 },
-    'meta-event-spend': { bar: 'bar-meta-event', max: 800 },
-    'meta-retarget-spend': { bar: 'bar-meta-retarget', max: 800 },
-    'google-search-spend': { bar: 'bar-google-search', max: 1200 },
-    'google-display-spend': { bar: 'bar-google-display', max: 1200 }
+    'meta-bridal-spend':   { bar: 'bar-meta-bridal',    max: metaBudget },
+    'meta-event-spend':    { bar: 'bar-meta-event',      max: metaBudget },
+    'meta-retarget-spend': { bar: 'bar-meta-retarget',   max: metaBudget },
+    'google-search-spend': { bar: 'bar-google-search',   max: googleBudget },
+    'google-display-spend':{ bar: 'bar-google-display',  max: googleBudget }
   };
   for (const [field, cfg] of Object.entries(fields)) {
     const val = getInput(field);
@@ -1390,14 +1436,16 @@ function setVal(id, val) {
 }
 
 function fmtNum(n) {
+  n = Math.round(n);
   if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-  return n.toString();
+  if (n >= 10000) return (n/1000).toFixed(1) + 'K';
+  return n.toLocaleString('en-CA');
 }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
   updatePeriod();
+  updateBudget();
   buildChecklist();
   const now = new Date();
   document.getElementById('footer-date').textContent =
